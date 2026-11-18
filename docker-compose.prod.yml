@@ -48,7 +48,9 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     ports:
-      - "127.0.0.1:${PORT_KEYCLOAK:-8080}:8080"
+      # Bound to all interfaces, not just localhost -- this server is reached directly on this
+      # port from outside (no reverse proxy in front), unlike the original 127.0.0.1-only design.
+      - "${PORT_KEYCLOAK:-8080}:8080"
     depends_on:
       keycloak-db:
         condition: service_healthy
