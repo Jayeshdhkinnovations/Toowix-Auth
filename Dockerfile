@@ -11,5 +11,9 @@ FROM quay.io/keycloak/keycloak:26.7.4
 COPY themes/toowix /opt/keycloak/themes/toowix
 COPY --from=spi-build /build/target/toowix-email-otp.jar /opt/keycloak/providers/toowix-email-otp.jar
 
+# kc.db is a build-time option -- it must be baked in here to match the postgres runtime config
+# in docker-compose.prod.yml, or `start --optimized` refuses to apply it and restart-loops.
+ENV KC_DB=postgres
+
 # Keycloak only loads new providers after a build step.
 RUN /opt/keycloak/bin/kc.sh build
