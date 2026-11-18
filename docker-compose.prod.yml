@@ -1,0 +1,75 @@
+services:
+  # 1. Postgres - persistent store for every realm, client, user, role, and session Keycloak
+  # manages. Keycloak itself is stateless; all of it lives here, on its own volume, so rebuilding
+  # the keycloak image/container below (new theme, new SPI jar) never touches this data.
+  keycloak-db:
+    image: postgres:16-alpine
+    container_name: toowix-prod-keycloak-db
+    restart: always
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+    volumes:
+      - toowix-prod-keycloak-data:/var/lib/postgresql/data
+    networks:
+      - toowix-keycloak-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Toowix Keycloak - the official Keycloak image plus the toowix login theme and the
+  # toowix-email-otp SPI (see ./Dockerfile). Runs in production mode (`start`, not `start-dev`),
+  # against the Postgres database above, not the embedded H2 file store dev uses.
+  keycloak:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${KEYCLOAK_IMAGE:-toowix-keycloak:prod}
+    container_name: toowix-prod-keycloak
+    restart: always
+    command: ["start", "--optimized"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      # The realm's own login/account pages and every issued token's `iss` claim are built from
+      # this -- every app's Keycloak client config (redirect URIs, KEYCLOAK_BASE_URL/ISSUER env
+      # vars) must point at this exact same domain.
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-account.toowix.com}
+      # TLS is terminated by the host-level reverse proxy in front of this container (same
+      # pattern Mail/Meet already use) -- Keycloak itself speaks plain HTTP on its internal port.
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "127.0.0.1:${PORT_KEYCLOAK:-8080}:8080"
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    networks:
+      - toowix-keycloak-internal
+      - toowix-keycloak-public
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  # Isolates Postgres: only the Keycloak container can reach it.
+  toowix-keycloak-internal:
+    driver: bridge
+  # Where the host reverse proxy reaches Keycloak's published port from; kept separate so it can
+  # later join the same external network Mail/Meet's proxy uses, without exposing Postgres to it.
+  toowix-keycloak-public:
+    driver: bridge
+
+volumes:
+  toowix-prod-keycloak-data:

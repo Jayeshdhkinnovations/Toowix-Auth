@@ -1,0 +1,18 @@
+# Local backup/legacy artifacts from past container migrations -- not needed to build or run
+# the image, and H2 db files are large binary blobs that don't belong in git.
+backup-8080-pre-mfa/
+legacy-keycloak-h2/
+mfa-merge-artifacts/
+*.mv.db
+*.trace.db
+
+# Maven build output for the email-otp-spi module (the Dockerfile compiles this itself).
+email-otp-spi/target/
+
+# Editor/OS noise
+.idea/
+.vscode/
+*.log
+
+# Real secrets -- only .env.example is committed
+.env

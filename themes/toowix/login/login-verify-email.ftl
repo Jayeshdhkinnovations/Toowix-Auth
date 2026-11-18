@@ -1,0 +1,5 @@
+<#import "toowix-layout.ftl" as toowix>
+<@toowix.page heading="Check your email" subtitle="We've sent a secure verification link to your email address." storyHeading="Check your" storyAccent="email" storyText="We've sent a verification link<br>to your email address.">
+<div class="toowix-instruction"><#if verifyEmail??>${msg("emailVerifyInstruction1",verifyEmail)}<#else>${msg("emailVerifyInstruction4",user.email)}</#if></div>
+<#if isAppInitiatedAction??><form id="kc-verify-email-form" class="toowix-form" action="${url.loginAction}" method="post"><button class="toowix-action" type="submit"><#if verifyEmail??>${msg("emailVerifyResend")}<#else>${msg("emailVerifySend")}</#if></button><button class="toowix-back-button" type="submit" name="cancel-aia" value="true" formnovalidate>${msg("doCancel")}</button></form><#else><p class="toowix-instruction">${msg("emailVerifyInstruction2")} <a href="${url.loginAction}">${msg("doClickHere")}</a> ${msg("emailVerifyInstruction3")}</p></#if>
+</@toowix.page>

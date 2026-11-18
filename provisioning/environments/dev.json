@@ -1,0 +1,31 @@
+{
+  "keycloak_url": "http://localhost:8080",
+  "realm": "toowix-dev",
+  "admin_user_env": "KC_ADMIN_USER",
+  "admin_password_env": "KC_ADMIN_PASSWORD",
+  "admin_user_default": "admin",
+  "admin_password_default": "admin",
+  "roles": ["super_admin", "company_owner", "company_admin", "toowix_user",
+            "sign_access", "meet_access", "mail_access", "admin_access"],
+  "clients": [
+    {"clientId": "toowix-portal", "name": "Toowix Portal", "public": true,
+     "redirectUris": ["http://localhost:5173/*"], "webOrigins": ["http://localhost:5173"]},
+    {"clientId": "toowix-sign", "name": "Toowix Sign (OpenSign)", "public": true,
+     "redirectUris": ["http://localhost:3001/*"], "webOrigins": ["http://localhost:3001"]},
+    {"clientId": "toowix-meet", "name": "Toowix Meet", "public": true,
+     "redirectUris": ["http://localhost:3000/*"], "webOrigins": ["http://localhost:3000"]}
+  ],
+  "users": [
+    {"username": "signuser", "email": "signuser@demo.toowix.com", "firstName": "Sign", "lastName": "User",
+     "password_env": "SIGNUSER_PASSWORD", "password_default": "Sign@12345",
+     "roles": ["toowix_user", "company_owner", "sign_access"],
+     "attributes": {"company_id": "company_demo_001", "company_name": "Demo Company", "plan_code": "sign_only"}},
+    {"username": "fulluser", "email": "fulluser@demo.toowix.com", "firstName": "Full", "lastName": "User",
+     "password_env": "FULLUSER_PASSWORD", "password_default": "Full@12345",
+     "roles": ["toowix_user", "company_owner", "sign_access", "meet_access", "mail_access"],
+     "attributes": {"company_id": "company_demo_002", "company_name": "Complete Company", "plan_code": "complete"}},
+    {"username": "superadmin", "email": "superadmin@toowix.com", "firstName": "Super", "lastName": "Admin",
+     "password_env": "SUPERADMIN_PASSWORD", "password_default": "Super@12345",
+     "roles": ["super_admin", "admin_access"], "attributes": {}}
+  ]
+}
