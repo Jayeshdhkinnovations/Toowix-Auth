@@ -22,7 +22,7 @@
 <td style="padding: 32px 36px 20px;">
 <table role="presentation" cellpadding="0" cellspacing="0">
 <tr>
-<td style="width:36px; height:36px; vertical-align:middle;"><img src="${url.resourcesUrl}/img/brand-mark.svg" alt="Toowix" width="36" height="36" style="display:block; border:0;"></td>
+<td style="width:36px; height:36px; vertical-align:middle;"><img src="${url.resourcesUrl}/img/brand-mark.png" alt="Toowix" width="36" height="36" style="display:block; border:0;"></td>
 <td style="padding-left:12px; font:bold 20px Arial, Helvetica, sans-serif; color:#0b163c; vertical-align:middle;">Toowix</td>
 </tr>
 </table>

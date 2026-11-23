@@ -399,7 +399,7 @@ public class EmailOtpAuthenticator implements Authenticator {
         if (!base.endsWith("/")) {
             base += "/";
         }
-        return base + "resources/" + Version.RESOURCES_VERSION + "/email/toowix/img/brand-mark.svg";
+        return base + "resources/" + Version.RESOURCES_VERSION + "/email/toowix/img/brand-mark.png";
     }
 
     // Built independently of the theme system's shared template.ftl wrapper (this authenticator
