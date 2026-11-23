@@ -16,3 +16,8 @@ email-otp-spi/target/
 
 # Real secrets -- only .env.example is committed
 .env
+
+# Realm exports contain plaintext SMTP passwords and user credential hashes --
+# one-time migration artifacts, never meant to be committed.
+toowix-realm.json
+toowix-dev-realm.json
