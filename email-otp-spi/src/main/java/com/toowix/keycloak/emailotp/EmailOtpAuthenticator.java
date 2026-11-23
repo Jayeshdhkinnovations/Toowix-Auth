@@ -17,7 +17,6 @@ import org.keycloak.authentication.Authenticator;
 import org.keycloak.credential.CredentialProvider;
 import org.keycloak.credential.OTPCredentialProvider;
 import org.keycloak.credential.OTPCredentialProviderFactory;
-import org.keycloak.common.Version;
 import org.keycloak.email.EmailException;
 import org.keycloak.email.EmailSenderProvider;
 import org.keycloak.models.KeycloakSession;
@@ -25,7 +24,6 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.credential.OTPCredentialModel;
-import org.keycloak.urls.UrlType;
 
 /**
  * Second-factor step shown after the password. The user chooses either the authenticator app
@@ -259,7 +257,7 @@ public class EmailOtpAuthenticator implements Authenticator {
                     recoveryEmail,
                     "Your Toowix verification code",
                     textBody(code),
-                    htmlBody(code, logoUrl(session, "email-logo-light.png"), logoUrl(session, "email-logo-dark.png")));
+                    htmlBody(code));
         } catch (EmailException e) {
             LOG.warnf(e, "Could not send Toowix email OTP for realm %s", realm.getName());
             context.challenge(codeForm(context, recoveryEmail, "emailOtpSendFailed"));
@@ -391,31 +389,18 @@ public class EmailOtpAuthenticator implements Authenticator {
                 + "This is an automated message from Toowix. If you were not expecting this email, you can safely ignore it.";
     }
 
-    // Static resource path Keycloak serves theme files under. Version.RESOURCES_VERSION is a
-    // constant for a given Keycloak distribution (not a per-rebuild hash), so this stays correct
-    // across image rebuilds and only needs revisiting on a Keycloak version upgrade.
-    private static String logoUrl(KeycloakSession session, String file) {
-        String base = session.getContext().getUri(UrlType.FRONTEND).getBaseUri().toString();
-        if (!base.endsWith("/")) {
-            base += "/";
-        }
-        return base + "resources/" + Version.RESOURCES_VERSION + "/email/toowix/img/" + file;
-    }
-
     // Built independently of the theme system's shared template.ftl wrapper (this authenticator
     // calls EmailSenderProvider directly, not Keycloak's FreeMarker email templates), so the same
     // header/footer chrome as themes/toowix/email/html/template.ftl is reproduced inline here.
-    private static String htmlBody(String code, String logoLightUrl, String logoDarkUrl) {
-        return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><style>"
-                + ".toowix-logo-dark{display:none;}"
-                + "@media (prefers-color-scheme: dark){.toowix-logo-light{display:none !important;}.toowix-logo-dark{display:block !important;}}"
-                + "</style></head><body style=\"margin:0;padding:0;background:#f3f2fb;\">"
+    private static String htmlBody(String code) {
+        return "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f3f2fb;\">"
                 + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f3f2fb;padding:32px 16px;\"><tr><td align=\"center\">"
                 + "<table role=\"presentation\" width=\"560\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:560px;width:100%;background:#ffffff;border:1px solid #e3e6f2;border-radius:14px;overflow:hidden;\">"
                 + "<tr><td style=\"padding:32px 36px 20px;\">"
-                + "<img src=\"" + logoLightUrl + "\" alt=\"Toowix\" height=\"28\" class=\"toowix-logo-light\" style=\"display:block;border:0;\">"
-                + "<img src=\"" + logoDarkUrl + "\" alt=\"Toowix\" height=\"28\" class=\"toowix-logo-dark\" style=\"display:none;border:0;\">"
-                + "</td></tr>"
+                + "<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"><tr>"
+                + "<td style=\"width:36px;height:36px;background:#5d12ec;border-radius:9px;text-align:center;vertical-align:middle;font:bold 18px Arial, Helvetica, sans-serif;color:#ffffff;\">T</td>"
+                + "<td style=\"padding-left:12px;font:bold 20px Arial, Helvetica, sans-serif;color:#0b163c;vertical-align:middle;\">Toowix</td>"
+                + "</tr></table></td></tr>"
                 + "<tr><td style=\"padding:0 36px 8px;border-top:1px solid #e3e6f2;\"></td></tr>"
                 + "<tr><td style=\"padding:24px 36px 32px;font:15px/1.6 Arial, Helvetica, sans-serif;color:#0b163c;\">"
                 + "<p style=\"margin:0 0 16px;\">Your verification code is:</p>"
