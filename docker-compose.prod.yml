@@ -40,6 +40,13 @@ services:
       # this -- every app's Keycloak client config (redirect URIs, KEYCLOAK_BASE_URL/ISSUER env
       # vars) must point at this exact same domain.
       KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-account.toowix.com}
+      # Without this, Keycloak infers the port from whatever connection it's actually serving --
+      # 8080 for direct access -- and bakes that into every generated URL (issuer, email links,
+      # static resource links). 8080 is only reachable on the internal network; the public proxy
+      # only exposes 80/443, so any link/image with :8080 in it silently fails for anyone outside
+      # that network (confirmed: Gmail's email image fetcher, which hits these from the public
+      # internet, got a broken image for exactly this reason). -1 omits the port entirely.
+      KC_HOSTNAME_PORT: "-1"
       # TLS is terminated by the host-level reverse proxy in front of this container (same
       # pattern Mail/Meet already use) -- Keycloak itself speaks plain HTTP on its internal port.
       KC_HOSTNAME_STRICT_HTTPS: "false"
